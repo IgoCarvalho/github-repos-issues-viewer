@@ -96,24 +96,18 @@ export const IssuesList = styled.ul`
   list-style: none;
 `;
 
+const listItemPadding = 5;
+const userImageTop = 21;
+
 export const IssuesListItem = styled.li`
   display: flex;
-  padding: 5px;
-  border-radius: 3px;
-  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px,
-    rgba(0, 0, 0, 0.08) 0px 0px 0px 1px;
+  padding: ${listItemPadding}px;
+  border-radius: 0 3px 3px 3px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: rgba(0, 0, 0, 0.05) 0px 6px 24px 0px;
 
   & + li {
-    margin-top: 10px;
-  }
-
-  img {
-    display: block;
-    width: 50px;
-    border-radius: 3px;
-    border: 1px solid #eee;
-    margin-right: 10px;
-    align-self: flex-start;
+    margin-top: ${userImageTop + 10}px;
   }
 
   a {
@@ -136,6 +130,37 @@ export const IssuesListItem = styled.li`
 type IssueLabelProps = {
   color: string | null;
 };
+
+export const UserImageCard = styled.div`
+  position: relative;
+  top: -${userImageTop}px;
+
+  & p {
+    display: block;
+    position: absolute;
+    top: -${listItemPadding}px;
+    left: -${listItemPadding + 1}px;
+    height: ${userImageTop}px;
+    padding-left: 65px;
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-bottom-width: 0;
+    padding-right: ${listItemPadding * 2}px;
+    border-radius: 4px 4px 0 0;
+    background-color: #fff;
+    white-space: nowrap;
+  }
+
+  img {
+    display: block;
+    width: 50px;
+    border-radius: 3px;
+    border: 1px solid #eee;
+    margin-right: 10px;
+    align-self: flex-start;
+    position: relative;
+    z-index: 10;
+  }
+`;
 
 export const IssueLabelsList = styled.ul`
   list-style: none;

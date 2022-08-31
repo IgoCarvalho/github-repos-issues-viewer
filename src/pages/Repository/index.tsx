@@ -1,10 +1,10 @@
 import { useEffect, useState } from 'react';
 import {
   FaArrowLeft,
-  FaStar,
   FaCodeBranch,
   FaRegDotCircle,
   FaSpinner,
+  FaStar,
 } from 'react-icons/fa';
 import { useParams } from 'react-router-dom';
 import api from '../../services/api';
@@ -20,6 +20,7 @@ import {
   RepoActivity,
   RepoHeader,
   RepoInfo,
+  UserImageCard,
 } from './styles';
 
 type GitHubUser = {
@@ -217,10 +218,14 @@ function Repository() {
       <IssuesList>
         {reposiroryIssues?.map((issue) => (
           <IssuesListItem key={issue.id}>
-            <img
-              src={issue.user.avatar_url}
-              alt={`${issue.user.login} avatar`}
-            />
+            <UserImageCard>
+              <img
+                src={issue.user.avatar_url}
+                alt={`${issue.user.login} avatar`}
+                title={issue.user.login}
+              />
+              <p>{issue.user.login}</p>
+            </UserImageCard>
 
             <div>
               <a href={issue.html_url} target="_blank" rel="noreferrer">
