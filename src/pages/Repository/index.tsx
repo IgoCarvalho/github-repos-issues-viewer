@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useState } from 'react';
 import {
   FaArrowLeft,
   FaCodeBranch,
@@ -13,6 +13,8 @@ import {
   GoBackButton,
   IssueLabel,
   IssueLabelsList,
+  IssuesFilter,
+  IssuesFilterOptions,
   IssuesList,
   IssuesListItem,
   Loading,
@@ -55,10 +57,12 @@ type RepoIssuesData = {
   created_at: string;
 };
 
+type IssuesFilter = 'all' | 'closed' | 'open';
+
 function Repository() {
-  const [reposiroryIssues, setReposiroryIssues] = useState<
-    RepoIssuesData[] | null
-  >(null);
+  const [reposiroryIssues, setReposiroryIssues] = useState<RepoIssuesData[]>(
+    []
+  );
   const [reposiroryInfo, setReposiroryInfo] =
     useState<RepositoryInfoData | null>(null);
   const [issuesPage, setIssuesPage] = useState(1);
@@ -66,6 +70,8 @@ function Repository() {
   const [isLoading, setIsloading] = useState(true);
   const [isLoadingMore, setIsloadingMore] = useState(false);
   const [hasMoreIssuesToLoad, setHasMoreIssuesToLoad] = useState(true);
+
+  const [issueFilter, setIssueFilter] = useState<IssuesFilter>('all');
 
   const { repoName = '' } = useParams();
   const parsedRepoName = decodeURIComponent(repoName);
@@ -77,19 +83,11 @@ function Repository() {
       setIsloading(true);
 
       try {
-        const [repoInfoData, repoIssuesData] = await Promise.all([
-          api.get<RepositoryInfoData>(`/repos/${parsedRepoName}`),
-          api.get<RepoIssuesData[]>(`/repos/${parsedRepoName}/issues`, {
-            params: {
-              state: 'open',
-              per_page: issuesPerPage,
-            },
-          }),
-        ]);
+        const repoInfoData = await api.get<RepositoryInfoData>(
+          `/repos/${parsedRepoName}`
+        );
 
         setReposiroryInfo(repoInfoData.data);
-        setReposiroryIssues(repoIssuesData.data);
-        setHasMoreIssuesToLoad(repoIssuesData.data.length >= issuesPerPage);
       } catch (error) {
         console.error(error);
       } finally {
@@ -108,20 +106,17 @@ function Repository() {
           `/repos/${parsedRepoName}/issues`,
           {
             params: {
-              state: 'open',
+              state: issueFilter,
               per_page: issuesPerPage,
               page: issuesPage,
             },
           }
         );
 
-        setReposiroryIssues((issues) => {
-          if (issues) {
-            return [...issues, ...repoIssues.data];
-          }
+        issuesPage > 1
+          ? setReposiroryIssues((issues) => [...issues, ...repoIssues.data])
+          : setReposiroryIssues(repoIssues.data);
 
-          return [...repoIssues.data];
-        });
         setHasMoreIssuesToLoad(repoIssues.data.length >= issuesPerPage);
       } catch (error) {
         console.error(error);
@@ -130,9 +125,8 @@ function Repository() {
       }
     }
 
-    // skip first render
-    issuesPage > 1 && loadMoreIssues();
-  }, [issuesPage, parsedRepoName]);
+    loadMoreIssues();
+  }, [issueFilter, issuesPage, parsedRepoName]);
 
   function formatNumber(value = 0) {
     const numberFormater = Intl.NumberFormat('pt-br');
@@ -163,7 +157,19 @@ function Repository() {
     setIssuesPage(issuesPage + 1);
   }
 
-  console.log('render');
+  function handleFilterSelection(e: ChangeEvent<HTMLInputElement>) {
+    const selectedFilter = e.target.value as IssuesFilter;
+
+    setIssueFilter(selectedFilter);
+
+    if (issueFilter !== selectedFilter) {
+      setIssuesPage(1);
+    }
+  }
+
+  function isFilterChecked(value: IssuesFilter) {
+    return issueFilter === value;
+  }
 
   if (isLoading) {
     return <Loading>Carregando...</Loading>;
@@ -214,6 +220,39 @@ function Repository() {
           </div>
         </RepoInfo>
       </RepoHeader>
+
+      <IssuesFilter disabled={reposiroryInfo?.open_issues === 0}>
+        <legend>Issues</legend>
+        <IssuesFilterOptions>
+          <input
+            id="all-issues"
+            type="radio"
+            name="issue-filter"
+            value="all"
+            checked={isFilterChecked('all')}
+            onChange={handleFilterSelection}
+          />
+          <label htmlFor="all-issues">Todas</label>
+          <input
+            id="opened-issues"
+            type="radio"
+            name="issue-filter"
+            value="open"
+            checked={isFilterChecked('open')}
+            onChange={handleFilterSelection}
+          />
+          <label htmlFor="opened-issues">Abertas</label>
+          <input
+            id="cloded-issues"
+            type="radio"
+            name="issue-filter"
+            value="closed"
+            checked={isFilterChecked('closed')}
+            onChange={handleFilterSelection}
+          />
+          <label htmlFor="cloded-issues">Fechadas</label>
+        </IssuesFilterOptions>
+      </IssuesFilter>
 
       <IssuesList>
         {reposiroryIssues?.map((issue) => (

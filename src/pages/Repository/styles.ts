@@ -1,4 +1,4 @@
-import { lighten, readableColor } from 'polished';
+import { darken, lighten, readableColor } from 'polished';
 import { Link } from 'react-router-dom';
 import styled, { css, keyframes } from 'styled-components';
 
@@ -31,7 +31,7 @@ export const RepoHeader = styled.header`
 `;
 
 export const GoBackButton = styled(Link)`
-  padding: 10px 15px;
+  padding: 5px 10px;
   margin-right: 10px;
   border: 2px solid transparent;
   background-color: #fff;
@@ -90,6 +90,62 @@ export const RepoActivity = styled.div`
   }
 `;
 
+export const IssuesFilter = styled.fieldset`
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  border: 0;
+  position: relative;
+  margin: 20px 0;
+
+  & legend {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 2.6rem;
+    font-weight: bold;
+  }
+
+  &:disabled > div {
+    opacity: 0.8;
+  }
+`;
+
+export const IssuesFilterOptions = styled.div`
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  padding: 5px;
+  border-radius: 5px;
+  background-color: ${darken(0.1)('#fff')};
+
+  & label {
+    display: block;
+    padding: 5px 10px;
+    border-radius: 5px;
+    border: 2px solid transparent;
+    background-color: #fff;
+    cursor: pointer;
+
+    &:hover,
+    &:focus {
+      box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 24px 0px;
+      border-color: ${lighten(0.1)('#0d2636')};
+    }
+  }
+
+  & input:checked + label {
+    box-shadow: rgba(0, 0, 0, 0.1) 0px 6px 24px 0px;
+    background-color: ${lighten(0.2)('#0d2636')};
+    color: #fff;
+  }
+
+  & input {
+    display: none;
+  }
+`;
+
 export const IssuesList = styled.ul`
   margin-top: 30px;
 
@@ -126,10 +182,6 @@ export const IssuesListItem = styled.li`
     font-size: 1.4rem;
   }
 `;
-
-type IssueLabelProps = {
-  color: string | null;
-};
 
 export const UserImageCard = styled.div`
   position: relative;
@@ -169,6 +221,10 @@ export const IssueLabelsList = styled.ul`
   gap: 5px;
   margin-top: 5px;
 `;
+
+type IssueLabelProps = {
+  color: string | null;
+};
 
 export const IssueLabel = styled.li<IssueLabelProps>`
   /* display: inline-block; */
